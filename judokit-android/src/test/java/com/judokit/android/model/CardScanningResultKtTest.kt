@@ -1,11 +1,6 @@
 package com.judokit.android.model
 
-import cards.pay.paycardsrecognizer.sdk.Card
-import io.mockk.every
-import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
 
 @DisplayName("Testing CardScanningResult")
 internal class CardScanningResultKtTest {
