@@ -5,7 +5,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'org.jlleitschuh.gradle.ktlint'
 apply plugin: 'de.mannodermaus.android-junit5'
 apply plugin: 'jacoco'
-apply plugin: 'guru.stefma.bintrayrelease'
+apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion 29
@@ -31,47 +31,57 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             testCoverageEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
 
         debug {
-            testCoverageEnabled true
         }
     }
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
-
-    testOptions.unitTests.all {
-        jacoco {
-            includeNoLocationClasses = true
-        }
-    }
 }
 
 version = android.defaultConfig.versionName
-
 group = 'com.judokit.android'
 
-androidArtifact {
-    artifactId = 'judokit-android'
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.javaDirectories
 }
 
-publish {
-    userOrg = 'judopay'
-    desc = 'Android Mobile Payments SDK'
-    website = 'https://github.com/JudoPay/JudoKit-Android'
+artifacts {
+    archives sourcesJar
+}
+
+if (android.productFlavors.size() > 0) {
+    android.libraryVariants.all { variant ->
+        if (variant.name.toLowerCase().contains("debug")) {
+            return
+        }
+
+        def bundleTask = tasks["bundle${variant.name.capitalize()}"]
+
+        artifacts {
+            archives(bundleTask.archivePath) {
+                classifier variant.flavorName
+                builtBy bundleTask
+                name = project.name
+            }
+        }
+
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.4'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.4'
 
     implementation 'com.judopay:device-dna:1.0.0'
@@ -85,7 +95,7 @@ dependencies {
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     // Navigation
@@ -105,6 +115,7 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
 
     implementation 'cards.pay:paycardsrecognizer:1.1.0'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
     implementation "com.zapp.library:merchant:1.1.0"
 
@@ -120,103 +131,4 @@ dependencies {
     // Mocking framework
     testImplementation 'io.mockk:mockk:1.10.0'
     testImplementation 'android.arch.core:core-testing:1.1.1'
-}
-
-task generateCodeAnalysisReport {
-    group 'Reporting'
-    description 'Start reporting code analysis tasks (Jacoco & ktlintCheck)'
-    dependsOn ":judokit-android:jacocoTestReport"
-    dependsOn ":judokit-android:ktlintCheck"
-}
-
-task jacocoTestReport(group: 'verification', description: 'Grenerate Jacoco Reports for all android variants')
-
-project.afterEvaluate {
-    def variants = android.hasProperty('libraryVariants') ? android.libraryVariants : android.applicationVariants
-    variants.forEach {
-        tasks.jacocoTestReport.dependsOn(addJacocoTask(it))
-    }
-}
-
-def addJacocoTask(variant) {
-    def variantName = variant.name.capitalize()
-    logger.info("Adding jacoco task for variant $variantName")
-
-    // see https://docs.gradle.org/current/dsl/org.gradle.testing.jacoco.tasks.JacocoReport.html
-    def taskName = "jacocoTestReport${variantName}"
-    def foundTask = project.tasks.findByName(taskName)
-    def jacocoTask = foundTask ? foundTask : project.tasks.create(taskName, JacocoReport)
-
-    jacocoTask.dependsOn("test${variantName}UnitTest")
-    jacocoTask.group = 'verification'
-    jacocoTask.description = "Generate Jacoco Report for variant $variantName"
-
-    jacocoTask.reports {
-        csv.enabled false
-        html.enabled true
-        xml.enabled true
-    }
-
-    def excludedFiles = [
-            '**/R.class',
-            '**/R$*.class',
-            '**/BuildConfig.*',
-            '**/Manifest*.*',
-            '**/*Test*.*',
-            'android/**/*.*',
-            '**/*Activity.*',
-            '**/*Fragment.*',
-            '**/*ViewModelFactory.*',
-            '**/*View.*',
-            '**/*Action*.*',
-            '**/*Entity.*',
-            '**/adapter/**',
-            '**/components/**',
-            '**/formatting/**',
-            '**/db/JudoRoomDatabase.*',
-            '**/db/dao/**',
-            '**/model/googlepay/**',
-            '**/model/JudoResult.*',
-            '**/model/PrimaryAccountDetails.*',
-            '**/model/Event.*',
-            '**/model/PBBAConfiguration.*',
-            '**/model/UiConfiguration.*',
-            '**/api/factory/**',
-            '**/api/interceptor/ApiHeadersInterceptor.*',
-            '**/api/model/request/Address.*',
-            '**/api/model/request/BankSaleRequest.*',
-            '**/api/model/response/CardVerificationResult.*',
-            '**/api/model/response/Consumer.*',
-            '**/api/model/response/OrderDetails.*',
-            '**/api/model/response/Receipts.*',
-            '**/api/model/EnhancedPaymentDetail.*',
-            '**/api/model/ConsumerDevice.*',
-            '**/api/model/Browser.*',
-            '**/api/model/ClientDetails.*',
-            '**/api/model/SDKInfo.*',
-            '**/api/model/GeoLocation.*',
-            '**/api/model/ThreeDSecure.*',
-            '**/api/error/DuplicateTransactionError.*',
-            '**/api/error/TokenSecretError.*',
-            '**/ui/common/ProgressButton.*',
-            '**/ui/common/GooglePayButton.*',
-            '**/ui/common/PayByBankButton.*',
-            '**/service/polling/PollingResult.*'
-    ]
-
-    def sourceDirectories = files(variant.sourceSets.java.srcDirs.flatten())
-    def classDirectories = fileTree(dir: variant.javaCompileProvider.get().destinationDir, excludes: excludedFiles)
-
-    if (project.plugins.hasPlugin("kotlin-android")) {
-        sourceDirectories.from(files(variant.sourceSets.kotlin.srcDirs.flatten()))
-        def kotlinTask = tasks.getByName("compile${variantName}Kotlin")
-        if (kotlinTask) {
-            classDirectories += fileTree(dir: kotlinTask.destinationDir, excludes: excludedFiles)
-        }
-    }
-
-    jacocoTask.sourceDirectories.from = sourceDirectories
-    jacocoTask.classDirectories.from = classDirectories
-    jacocoTask.executionData.from = files("${buildDir}/jacoco/test${variantName}UnitTest.exec")
-    jacocoTask
 }

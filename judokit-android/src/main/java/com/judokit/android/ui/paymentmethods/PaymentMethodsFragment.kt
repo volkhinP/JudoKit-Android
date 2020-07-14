@@ -94,56 +94,78 @@ class PaymentMethodsFragment : Fragment() {
         viewModel = ViewModelProvider(this, factory).get(PaymentMethodsViewModel::class.java)
         viewModel.model.observe(viewLifecycleOwner, Observer { updateWithModel(it) })
 
-        viewModel.judoApiCallResult.observe(viewLifecycleOwner, Observer {
-            when (it) {
-                is JudoApiCallResult.Success -> handleSuccess(it.data)
-                is JudoApiCallResult.Failure -> handleFail(it.error)
+        viewModel.judoApiCallResult.observe(
+            viewLifecycleOwner,
+            Observer {
+                when (it) {
+                    is JudoApiCallResult.Success -> handleSuccess(it.data)
+                    is JudoApiCallResult.Failure -> handleFail(it.error)
+                }
             }
-        })
+        )
 
         // TODO: to be refactored
-        viewModel.allCardsSync.observe(viewLifecycleOwner, Observer {
-            viewModel.send(PaymentMethodsAction.Update)
-        })
+        viewModel.allCardsSync.observe(
+            viewLifecycleOwner,
+            Observer {
+                viewModel.send(PaymentMethodsAction.Update)
+            }
+        )
 
-        viewModel.payWithIdealObserver.observe(viewLifecycleOwner, Observer {
-            it.getContentIfNotHandled()?.let { bic ->
+        viewModel.payWithIdealObserver.observe(
+            viewLifecycleOwner,
+            Observer {
+                it.getContentIfNotHandled()?.let { bic ->
+                    findNavController().navigate(
+                        R.id.action_paymentMethodsFragment_to_idealFragment,
+                        bundleOf(
+                            JUDO_IDEAL_BANK to bic
+                        )
+                    )
+                }
+            }
+        )
+
+        viewModel.payWithPayByBankObserver.observe(
+            viewLifecycleOwner,
+            Observer {
+                if (!it.hasBeenHandled()) {
+                    navigateToPollingStatus()
+                }
+            }
+        )
+
+        viewModel.selectedCardNetworkObserver.observe(
+            viewLifecycleOwner,
+            Observer {
                 findNavController().navigate(
-                    R.id.action_paymentMethodsFragment_to_idealFragment, bundleOf(
-                        JUDO_IDEAL_BANK to bic
+                    R.id.action_paymentMethodsFragment_to_cardEntryFragment,
+                    bundleOf(
+                        CARD_NETWORK to it
                     )
                 )
             }
-        })
-
-        viewModel.payWithPayByBankObserver.observe(viewLifecycleOwner, Observer {
-            if (!it.hasBeenHandled()) {
-                navigateToPollingStatus()
-            }
-        })
-
-        viewModel.selectedCardNetworkObserver.observe(viewLifecycleOwner, Observer {
-            findNavController().navigate(
-                R.id.action_paymentMethodsFragment_to_cardEntryFragment, bundleOf(
-                    CARD_NETWORK to it
-                )
-            )
-        })
+        )
 
         sharedViewModel.paymentMethodsResult.observe(
             viewLifecycleOwner,
             Observer { result ->
                 viewModel.send(PaymentMethodsAction.UpdateButtonState(true))
                 sharedViewModel.paymentResult.postValue(result)
-            })
-        sharedViewModel.securityCodeResult.observe(viewLifecycleOwner, Observer { securityCode ->
-            viewModel.send(PaymentMethodsAction.PayWithSelectedStoredCard(securityCode))
-        })
+            }
+        )
+        sharedViewModel.securityCodeResult.observe(
+            viewLifecycleOwner,
+            Observer { securityCode ->
+                viewModel.send(PaymentMethodsAction.PayWithSelectedStoredCard(securityCode))
+            }
+        )
     }
 
     private fun navigateToPollingStatus() {
         findNavController().navigate(
-            R.id.action_paymentMethodsFragment_to_PollingStatusFragment, bundleOf(
+            R.id.action_paymentMethodsFragment_to_PollingStatusFragment,
+            bundleOf(
                 PAYMENT_WIDGET_TYPE to PaymentWidgetType.PAY_BY_BANK_APP
             )
         )
@@ -159,7 +181,8 @@ class PaymentMethodsFragment : Fragment() {
         if (receipt != null)
             if (receipt.is3dSecureRequired) {
                 findNavController().navigate(
-                    R.id.action_paymentMethodsFragment_to_cardVerificationFragment, bundleOf(
+                    R.id.action_paymentMethodsFragment_to_cardVerificationFragment,
+                    bundleOf(
                         CARD_VERIFICATION to receipt.toCardVerificationModel()
                     )
                 )

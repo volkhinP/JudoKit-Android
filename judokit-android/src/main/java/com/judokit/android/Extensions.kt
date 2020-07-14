@@ -108,10 +108,10 @@ fun Any.toJSONString(): String = Gson().toJson(this)
 internal fun requireAmount(paymentWidgetType: PaymentWidgetType, amount: Amount?): Amount {
     val defaultAmount = Amount.Builder().setAmount("").setCurrency(Currency.GBP)
     return if (arrayOf(
-            PaymentWidgetType.CHECK_CARD,
-            PaymentWidgetType.CREATE_CARD_TOKEN,
-            PaymentWidgetType.REGISTER_CARD
-        ).contains(paymentWidgetType)
+        PaymentWidgetType.CHECK_CARD,
+        PaymentWidgetType.CREATE_CARD_TOKEN,
+        PaymentWidgetType.REGISTER_CARD
+    ).contains(paymentWidgetType)
     ) {
         defaultAmount.build()
     } else {
