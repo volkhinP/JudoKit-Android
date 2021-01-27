@@ -45,8 +45,6 @@ jobs:
           paths:
             - judokit-android/build
 
-  # Add below as additional command once instrumented tests are added
-  # ./gradlew :judokit-android-examples:assembleReleaseAndroidTest
   build_sample:
     executor: android
     steps:
@@ -87,7 +85,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /home/circleci/project
+          at: ~/project
       - disable_predex
       - run:
           name: Run SDK Unit Tests
@@ -97,37 +95,15 @@ jobs:
           paths:
             - judokit-android/build
 
-  # Below step not currently used as no unit tests have been written
-  unit_test_sample:
+  instrumentation_test_sample:
     executor: android
     steps:
+      - checkout
       - attach_workspace:
-          at: /home/circleci/project
-      - disable_predex
+          at: ~/project
       - run:
-          name: Run Sample App Unit Tests
-          command: ./gradlew :judokit-android-examples:test
-
-  # Below step not currently used as no instrumented tests have been written
-  instrumented_test_sample:
-    executor: android
-    steps:
-      - attach_workspace:
-          at: /home/circleci/project
-      - run:
-          name: Store Google Service Account
-          command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
-      - run:
-          name: Authorize gcloud and set config defaults
-          command: |
-            sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-            sudo gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-      - run:
-          name: Test with Firebase Test Lab
-          command: >
-            gcloud firebase test android run \
-              --app judokit-android-examples/build/outputs/apk/debug/judokit-android-examples-debug.apk \
-              --test judokit-android-examples/build/outputs/apk/androidTest/debug/judokit-android-examples-debug-androidTest.apk
+          name: Run Sample App Instrumentation Tests
+          command: ./gradlew :judokit-android-examples:runInstrumentationTests
 
   sonar_scan:
     docker:
@@ -209,6 +185,9 @@ workflows:
       - unit_test_sdk:
           requires:
             - build_sdk
+      - instrumentation_test_sample:
+          requires:
+            - build_sample
       - sonar_scan:
           context: shared-secrets
           requires:
@@ -216,8 +195,8 @@ workflows:
       - release_sample:
           context: shared-secrets
           requires:
-            - build_sample
-            - unit_test_sdk
+            - regression_test_sample
+            - sonar_scan
           filters:
             branches:
               only:
