@@ -195,7 +195,7 @@ workflows:
       - release_sample:
           context: shared-secrets
           requires:
-            - regression_test_sample
+            - instrumentation_test_sample
             - sonar_scan
           filters:
             branches:
