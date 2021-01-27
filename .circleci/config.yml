@@ -102,6 +102,9 @@ jobs:
       - attach_workspace:
           at: ~/project
       - run:
+          name: Prepare Google Services Json
+          command: echo "$ANDROID_GOOGLE_SERVICES_JSON" | base64 -d > judokit-android-examples/google-services.json
+      - run:
           name: Run Sample App Instrumentation Tests
           command: ./gradlew :judokit-android-examples:runInstrumentationTests
 
@@ -186,6 +189,7 @@ workflows:
           requires:
             - build_sdk
       - instrumentation_test_sample:
+          context: shared-secrets
           requires:
             - build_sample
       - sonar_scan:
