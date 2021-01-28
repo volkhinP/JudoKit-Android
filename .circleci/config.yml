@@ -62,7 +62,7 @@ jobs:
             echo "$ANDROID_SIGNING_PRIVATE_KEY" | base64 -d > signing.key
             echo "$ANDROID_SIGNING_CERTIFICATE" | base64 -d > signing.crt
             openssl pkcs12 -export -inkey signing.key -in signing.crt -out signing.p12 -passout "pass:$ANDROID_KEYSTORE_PASSWORD"
-            keytool -importkeystore -srckeystore signing.p12 -srcstoretype pkcs12 -srcstorepass "$ANDROID_KEYSTORE_PASSWORD" -destkeystore signing.jks -deststoretype JKS -storepass "$ANDROID_KEYSTORE_PASSWORD" -noprompt 2>/dev/null
+            /usr/local/openjdk-11/bin/keytool -importkeystore -srckeystore signing.p12 -srcstoretype pkcs12 -srcstorepass "$ANDROID_KEYSTORE_PASSWORD" -destkeystore signing.jks -deststoretype JKS -storepass "$ANDROID_KEYSTORE_PASSWORD" -noprompt 2>/dev/null
             echo "storeFile=${PWD}/signing.jks" > ./judokit-android-examples/keystore.properties
             echo "storePassword=${ANDROID_KEYSTORE_PASSWORD}" >> ./judokit-android-examples/keystore.properties
             echo "keyAlias=1" >> ./judokit-android-examples/keystore.properties
@@ -119,10 +119,10 @@ jobs:
           name: Test with Firebase Test Lab
           command: >
             gcloud firebase test android run \
-              --app judokit-android-examples/build/outputs/apk/debug/judokit-android-examples-debug.apk \
+              --app judokit-android-examples/build/outputs/apk/release/judokit-android-examples-release.apk \
               --test judokit-android-examples/build/outputs/apk/androidTest/debug/judokit-android-examples-debug-androidTest.apk \
               --use-orchestrator \
-              --results-bucket ${FIREBASE_TEST_RESULTS_BUCKET} \
+              --results-bucket $FIREBASE_TEST_RESULTS_BUCKET \
               --project $GOOGLE_PROJECT_ID
 
   sonar_scan:
