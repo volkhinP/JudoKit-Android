@@ -102,6 +102,9 @@ jobs:
       - attach_workspace:
           at: ~/project
       - run:
+          name: Prepare Google Services Json
+          command: echo "$ANDROID_GOOGLE_SERVICES_JSON" | base64 -d > judokit-android-examples/google-services.json
+      - run:
           name: Store Google Service Account
           command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
       - run:
