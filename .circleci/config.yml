@@ -121,18 +121,6 @@ instrumentation_test_sample:
               --use-orchestrator \
               --results-bucket ${FIREBASE_TEST_RESULTS_BUCKET} \
               --project $GOOGLE_PROJECT_ID
-  instrumentation_test_sample:
-    executor: android
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/project
-      - run:
-          name: Prepare Google Services Json
-          command: echo "$ANDROID_GOOGLE_SERVICES_JSON" | base64 -d > judokit-android-examples/google-services.json
-      - run:
-          name: Run Sample App Instrumentation Tests
-          command: ./gradlew :judokit-android-examples:runInstrumentationTests
 
   sonar_scan:
     docker:
