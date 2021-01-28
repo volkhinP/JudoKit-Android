@@ -95,6 +95,32 @@ jobs:
           paths:
             - judokit-android/build
 
+instrumentation_test_sample:
+    executor: android
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/project
+      - run:
+          name: Store Google Service Account
+          command: echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+      - run:
+          name: Authorize gcloud and set config defaults
+          command: |
+            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+      - run:
+          name: Build Test Package
+          command: |
+            ./gradlew :judokit-android-examples:assembleDebugAndroidTest
+      - run:
+          name: Test with Firebase Test Lab
+          command: >
+            gcloud firebase test android run \
+              --app judokit-android-examples/build/outputs/apk/debug/judokit-android-examples-debug.apk \
+              --test judokit-android-examples/build/outputs/apk/androidTest/debug/judokit-android-examples-debug-androidTest.apk \
+              --use-orchestrator \
+              --results-bucket ${FIREBASE_TEST_RESULTS_BUCKET} \
+              --project $GOOGLE_PROJECT_ID
   instrumentation_test_sample:
     executor: android
     steps:
@@ -114,11 +140,11 @@ jobs:
         auth:
           username: _json_key
           password: $GCLOUD_SERVICE_KEY
-    working_directory: /home/circleci/project
+    working_directory: ~/project
     steps:
       - checkout
       - attach_workspace:
-          at: /home/circleci/project
+          at: ~/project
       - run: /opt/run-scan.sh
 
   release_sample:
@@ -126,7 +152,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /home/circleci/project
+          at: ~/project
       - run:
           name: Install Firebase CLI
           command: curl -sL https://firebase.tools | bash
@@ -152,7 +178,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /home/circleci/project
+          at: ~/project
       - run:
           name: Release SDK to Bintray
           command: ./gradlew bintrayUpload -PbintrayUser=$BINTRAY_USER -PbintrayKey=$BINTRAY_API_KEY -PdryRun=false
