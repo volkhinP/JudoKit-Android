@@ -102,6 +102,12 @@ jobs:
       - attach_workspace:
           at: ~/project
       - run:
+          name: Clone JudoKit-Automation-Scenarios
+          command: |
+            echo "$GITHUB_SSH_KEY" | base64 -d > ~/.ssh/id_rsa
+            git clone git@github.com:Judopay/JudoKit-Automation-Scenarios.git \
+              judokit-android-examples/src/androidTest/assets
+      - run:
           name: Prepare Google Services Json
           command: echo "$ANDROID_GOOGLE_SERVICES_JSON" | base64 -d > judokit-android-examples/google-services.json
       - run:
