@@ -139,8 +139,7 @@ jobs:
               --test judokit-android-examples/build/outputs/apk/androidTest/debug/judokit-android-examples-debug-androidTest.apk \
               --use-orchestrator \
               --results-bucket $FIREBASE_TEST_RESULTS_BUCKET \
-              --project $GOOGLE_PROJECT_ID \
-              --test-runner-class com.judokit.android.examples.test.CucumberRunner
+              --project $GOOGLE_PROJECT_ID
 
   sonar_scan:
     docker:
