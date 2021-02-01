@@ -71,6 +71,10 @@ jobs:
           name: Build Sample App APK
           command: |
             ./gradlew :judokit-android-examples:assembleRelease
+      - run:
+          name: Build Test Package
+          command: |
+            ./gradlew :judokit-android-examples:assembleAndroidTest
       - save_cache:
           key: judokit-android-examples-{{ checksum "judokit-android-examples/build.gradle" }}
           paths:
@@ -127,10 +131,6 @@ jobs:
           name: Authorize gcloud and set config defaults
           command: |
             gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-      - run:
-          name: Build Test Package
-          command: |
-            ./gradlew :judokit-android-examples:assembleAndroidTest
       - run:
           name: Test with Firebase Test Lab
           command: >
