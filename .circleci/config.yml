@@ -230,33 +230,33 @@ workflows:
 #          context: shared-secrets
 #          requires:
 #            - unit_test_sdk
-      - release_sample:
-          context: shared-secrets
-          requires:
-            - instrumentation_test_sample
-            - sonar_scan
-          filters:
-            branches:
-              only:
-                - master
-      - report_to_jira:
-          context: shared-secrets
-          environment: staging
-          requires:
-            - release_sample
-      - release_sdk:
-          context: shared-secrets
-          requires:
-            - build_sdk
-          filters:
-            branches:
-              ignore:
-                - /.*/
-            tags:
-              only:
-                - /^v[0-9]+(\.[0-9]+)*$/
-      - report_to_jira:
-          context: shared-secrets
-          environment: prod
-          requires:
-            - release_sdk
+#      - release_sample:
+#          context: shared-secrets
+#          requires:
+#            - instrumentation_test_sample
+#            - sonar_scan
+#          filters:
+#            branches:
+#              only:
+#                - master
+#      - report_to_jira:
+#          context: shared-secrets
+#          environment: staging
+#          requires:
+#            - release_sample
+#      - release_sdk:
+#          context: shared-secrets
+#          requires:
+#            - build_sdk
+#          filters:
+#            branches:
+#              ignore:
+#                - /.*/
+#            tags:
+#              only:
+#                - /^v[0-9]+(\.[0-9]+)*$/
+#      - report_to_jira:
+#          context: shared-secrets
+#          environment: prod
+#          requires:
+#            - release_sdk
