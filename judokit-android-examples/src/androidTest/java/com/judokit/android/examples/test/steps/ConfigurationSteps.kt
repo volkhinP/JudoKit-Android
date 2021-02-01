@@ -23,33 +23,33 @@ class ConfigurationSteps {
 
         val tags = scenario.sourceTagNames
 
-        val jsonString = InstrumentationRegistry.getInstrumentation().context.resources.assets.open(
-            "test-input-data.json"
-        ).bufferedReader().use { it.readText() }
+//        val jsonString = InstrumentationRegistry.getInstrumentation().context.resources.assets.open(
+//            "test-input-data.json"
+//        ).bufferedReader().use { it.readText() }
 
         // Parses test-input-data.json into TestConfiguration object
-        ConfigurationRobot.testConfiguration = Gson().fromJson(jsonString, TestConfiguration::class.java)
+//        ConfigurationRobot.testConfiguration = Gson().fromJson(jsonString, TestConfiguration::class.java)
 
         // Skips scenario
-        ConfigurationRobot.testConfiguration.testsToSkip.forEach {
-            if ("@$it" in tags) {
-                Assume.assumeTrue(false)
-            }
-        }
+//        ConfigurationRobot.testConfiguration.testsToSkip.forEach {
+//            if ("@$it" in tags) {
+//                Assume.assumeTrue(false)
+//            }
+//        }
 
         // Skip scenarios that are not in testsToInclude
-        ConfigurationRobot.testConfiguration.testsToInclude.forEach {
-            if ("@$it" !in tags) {
-                Assume.assumeTrue(false)
-            }
-        }
+//        ConfigurationRobot.testConfiguration.testsToInclude.forEach {
+//            if ("@$it" !in tags) {
+//                Assume.assumeTrue(false)
+//            }
+//        }
 
         // Extract data for the specific scenario by tag
-        ConfigurationRobot.scenarioData =
-            ConfigurationRobot.testConfiguration.testData.find { testData -> testData.tags.any { "@$it" in tags } }
-
-        // Apply configurations
-        configurationRobot.configure(tags, ConfigurationRobot.testConfiguration)
+//        ConfigurationRobot.scenarioData =
+//            ConfigurationRobot.testConfiguration.testData.find { testData -> testData.tags.any { "@$it" in tags } }
+//
+//        // Apply configurations
+//        configurationRobot.configure(tags, ConfigurationRobot.testConfiguration)
     }
 
     @After("@card-entry, @payment-methods, @3DS")
