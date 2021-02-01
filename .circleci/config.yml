@@ -130,7 +130,7 @@ jobs:
       - run:
           name: Build Test Package
           command: |
-            ./gradlew :judokit-android-examples:assembleDebugAndroidTest
+            ./gradlew :judokit-android-examples:assembleAndroidTest
       - run:
           name: Test with Firebase Test Lab
           command: >

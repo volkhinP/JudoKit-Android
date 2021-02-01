@@ -69,6 +69,7 @@ android {
     testOptions {
         animationsDisabled = true
     }
+    testBuildType = "release"
     packagingOptions {
         exclude 'META-INF/AL2.0'
         exclude 'META-INF/LGPL2.1'
