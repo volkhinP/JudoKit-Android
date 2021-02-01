@@ -112,7 +112,7 @@ jobs:
             chmod 600 ~/.ssh/id_rsa_judoci
             export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa_judoci -o IdentitiesOnly=yes"
             git clone git@github.com:Judopay/JudoKit-Automation-Scenarios.git \
-              judokit-android-examples/src/androidTest/assets
+              judokit-android-examples/src/androidTest/resources/com/judokit/android/examples/test
       - run:
           name: Inject Test Credentials
           command: |

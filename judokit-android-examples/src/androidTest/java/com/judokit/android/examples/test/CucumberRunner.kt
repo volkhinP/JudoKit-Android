@@ -6,7 +6,7 @@ import io.cucumber.junit.CucumberOptions
 import java.io.File
 
 @CucumberOptions(
-    features = ["features"],
+    features = ["classpath:features"],
     glue = ["com.judokit.android.examples.test.steps"]
 )
 class CucumberRunner : CucumberAndroidJUnitRunner() {
