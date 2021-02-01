@@ -135,12 +135,12 @@ jobs:
           name: Test with Firebase Test Lab
           command: >
             gcloud firebase test android run \
-              --app judokit-android-examples/build/outputs/apk/release/judokit-android-examples-release.apk \
-              --test judokit-android-examples/build/outputs/apk/androidTest/debug/judokit-android-examples-debug-androidTest.apk \
+              --app=judokit-android-examples/build/outputs/apk/release/judokit-android-examples-release.apk \
+              --test=judokit-android-examples/build/outputs/apk/androidTest/debug/judokit-android-examples-debug-androidTest.apk \
               --use-orchestrator \
-              --results-bucket $FIREBASE_TEST_RESULTS_BUCKET \
-              --project $GOOGLE_PROJECT_ID \
-              --test-runner-class com.judokit.android.examples.test.CucumberRunner
+              --results-bucket=$FIREBASE_TEST_RESULTS_BUCKET \
+              --project=$GOOGLE_PROJECT_ID \
+              --test-runner-class=com.judokit.android.examples.test.CucumberRunner
 
   sonar_scan:
     docker:
